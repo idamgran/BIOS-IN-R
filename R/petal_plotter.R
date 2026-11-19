@@ -1,65 +1,64 @@
+# Load packages
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
 # Read command-line arguments
 args <- commandArgs(trailingOnly = TRUE)
+
 species_a <- args[1] # The first argument is the name of the first species
 
-# EXERCISE: Store the second arguments as species_b.
-#
-species_b <- args[2]
+species_b <- args[2] # The second argument is the name of the second species
 
-# EXERCISE: Convert the third argument to an integer and store it as image_size.
-#
-image_size <- as.integer(args[3])
+image_size <- as.integer(args[3]) # The third argument is the image size
 
-# EXERCISE: Put species_a and species_b into one vector called selected_species.
-#
-selected_species <- c(species_a, species_b)
+
+
+# Import iris data 
 
 iris_data <- datasets::iris
 
-species_colours <- c(
-  setosa = "tomato",
-  versicolor = "steelblue",
-  virginica = "gold"
-)
 
 # Keep only data from the selected species
-iris_subset <- iris_data[iris_data$Species %in% selected_species, ]
 
-# EXERCISE: Create an output filename using species_a and species_b.
-#
-# Example: "iris_setosa_vs_versicolor.png"
-#
+iris_data <- filter(iris, Species %in% c(species_a, species_b))
+
+
+# Make plot
+
+plot <- iris_data |>
+  
+  ggplot(aes(x = Petal.Length, 
+             y = Petal.Width, 
+             colour = Species)) +
+  
+  geom_point() +
+  
+  labs(x = "Petal width",
+       y = "Petal length")
+
+
+
+# Create output file name
+
 output_file <- paste0(
-   "iris_",
-   species_a,
-   "_vs_",
-   species_b,
-   ".png"
+  "iris_",
+  species_a,
+  "_vs_",
+  species_b,
+  "_ggplot",
+  ".png"
 )
 
-# Open plot
-png(
+
+
+# Save plot
+
+ggsave(
   filename = output_file,
+  plot = plot,
   width = image_size,
-  height = image_size
+  height = image_size,
+  units = "px",
+  dpi = 150
 )
-
-plot(
-  Petal.Length ~ Petal.Width,
-  data = iris_subset,
-  col = species_colours[as.character(iris_subset$Species)],
-  pch = 19,
-  xlab = "Petal width",
-  ylab = "Petal length",
-  main = paste(species_a, "and", species_b)
-)
-
-legend(
-  "topleft",
-  legend = selected_species,
-  col = species_colours[selected_species],
-  pch = 19,
-  bty = "n"
-)
-
-dev.off() # Close plot
